@@ -9,7 +9,6 @@ generateFile()
             parseJson(data, url)
                 .then(json =>{
                     // TODO: SEND TO API
-                    console.log(json);
                 })
                 .catch(err => console.error(err))
         }
