@@ -104,6 +104,9 @@ const parseJson = (txtFile, path) => {
              *          Generate Doc key
              *
              **********************/
+            if (!versiones.length > 0)
+                versiones.push(articleDate);
+
             const doc = {
                 path,
                 version: articleDate,
