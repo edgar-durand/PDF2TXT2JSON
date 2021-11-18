@@ -57,12 +57,8 @@ const parseJson = (txtFile, path) => {
 
 
 
-            /**********************
-             *
-             *          Generate articles
-             *
-             * *******************/
-            LINE_BY_LINE.forEach(ln => {
+            for (let i = 0; i < LINE_BY_LINE.length; i++){
+                const ln = LINE_BY_LINE[i];
                 /**********   SET ARTICLE DATE   ***************/
                 if (ARTICLE_DATE.test(ln)){
                     const date = EXTRACT_DATE(ln)
@@ -100,7 +96,7 @@ const parseJson = (txtFile, path) => {
                         articleContent += ` ${ln}`;
                     }
                 }
-            })
+            }
 
 
             /**********************
