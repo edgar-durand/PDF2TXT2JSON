@@ -20,7 +20,6 @@ const parseJson = (txtFile, path) => {
             const BLANKS = /\s+|[\r]|[\n]|[\r][\n]|[♦]/gu;
             const BLANKS_START_END = /^(\s+?)?(\S.+\S)(\s)?$/g;
             const ARTICLE_DATE = /(\d{2})\sde\s(.+?\S)\s(de|del)\s(\d{4})/i;
-            const versiones = [];
             /** ***************************************************/
 
 
@@ -45,6 +44,7 @@ const parseJson = (txtFile, path) => {
             let articleDate = '';
             let articleContent = '';
             let currentArticle = '';
+            const versiones = [];
             /** *****************************************************/
 
 
