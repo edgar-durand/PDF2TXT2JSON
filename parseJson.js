@@ -119,10 +119,11 @@ const parseJson = (txtFile, path) => {
              *          Save JSON to file
              *
              ************************/
+            const payload = { articulos: json, doc }
 
-            saveToPath('./json.json', JSON.stringify({ articulos: json, doc }), () => {
+            saveToPath('./json.json', JSON.stringify(payload), () => {
                 console.timeEnd('generate-json');
-                resolve(json)
+                resolve(payload)
             });
         } catch (e) {
             reject(e);
