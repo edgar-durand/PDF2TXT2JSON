@@ -15,11 +15,18 @@ const generateFile = async (
         const pdfParser = new PDFParser(this, 1);
         pdfParser.on("pdfParser_dataError", errData => reject(errData.parserError));
         pdfParser.on("pdfParser_dataReady", pdfData => {
+            console.log(pdfData.Meta)
             saveToPath(SAVE_TO_PATH + SAVE_FILENAME, pdfParser.getRawTextContent(), () => {
                 console.timeEnd('generate-pdf')
                 resolve({
                     url: SAVE_TO_PATH +SAVE_FILENAME,
-                    data: pdfParser.getRawTextContent()
+                    data: pdfParser.getRawTextContent(),
+                    meta: {
+                        title: pdfData.Meta.Title?.replace('Microsoft Word - ', ''),
+                        author: pdfData.Meta.Author,
+                        createDate: pdfData.Meta.Metadata['xmp:createdate'],
+                        modifyDate: pdfData.Meta.Metadata['xmp:modifydate']
+                    }
                 })
             });
         });

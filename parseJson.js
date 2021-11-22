@@ -15,11 +15,12 @@ const parseJson = (txtFile, path) => {
              *
              * @type {RegExp}
              ******************************************************/
-            const ARTICLES = /(ARTÍCULO)\s(\S.+?)\.[-]\s(.*)/i;     // ex. 'ARTÍCULO 82'
+            const ARTICLES = /(ART[ÍI]CULO)\s(\S.+?)\.[-]?\s(.*)/i;     // ex. 'ARTÍCULO 82'
             const PAGE_BREAK = /---------------Page.*/gi;        // ex. ----------------Page (434) Break----------------
             const BLANKS = /\s+|[\r]|[\n]|[\r][\n]|[♦]/gu;
             const BLANKS_START_END = /^(\s+?)?(\S.+\S)(\s)?$/g;
             const ARTICLE_DATE = /(\d{2})\sde\s(.+?\S)\s(de|del)\s(\d{4})/i;
+            const NUMBERS = /\d/
             /** ***************************************************/
 
 
@@ -29,7 +30,7 @@ const parseJson = (txtFile, path) => {
              *
              ********************************************************/
             const EXTRACT_DATE = (str) => {
-                const [_, day, month,de, year] = ARTICLE_DATE.exec(str);
+                const [_, day, month, de, year] = ARTICLE_DATE.exec(str);
                 return `${year}-${months[month.toLowerCase()]}-${day}`;
             }
 
@@ -55,12 +56,10 @@ const parseJson = (txtFile, path) => {
                 })
                 .filter((ln) => typeof ln !== 'undefined' && ln !== ' ')
 
-
-
-            for (let i = 0; i < LINE_BY_LINE.length; i++){
+            for (let i = 0; i < LINE_BY_LINE.length; i++) {
                 const ln = LINE_BY_LINE[i];
                 /**********   SET ARTICLE DATE   ***************/
-                if (ARTICLE_DATE.test(ln)){
+                if (ARTICLE_DATE.test(ln)) {
                     const date = EXTRACT_DATE(ln)
                     if (!versiones.includes(date) && ln.includes('(REFORMADO')) versiones.push(date)
                 }
@@ -69,33 +68,32 @@ const parseJson = (txtFile, path) => {
                     articleDate = EXTRACT_DATE(ln)
                 }
 
-                if (articleDate !== '') {
+                if (ARTICLES.test(ln)) {
+                    const [_, type, articleNumber, initialContent] = ARTICLES.exec(ln)
 
-                    if (ARTICLES.test(ln)) {
-                        const [_, type, articleNumber, initialContent] = ARTICLES.exec(ln)
-
-                        // When article change save the current one and reset aux variable
-                        if (currentArticle !== '' && currentArticle !== articleNumber) {
-                            json.push({
-                                contenido: {
-                                    [articleDate]: {
-                                        fecha: articleDate,
-                                        contenido: articleContent,
-                                        file: path
-                                    }
-                                },
-                                numero: `${currentArticle}`,
-                                tipo: 'articulo'
-                            })
-                            articleContent = '';
-                        }
-
-                        currentArticle = articleNumber;
-                        articleContent += ` ${initialContent}`;
-                    } else {
-                        articleContent += ` ${ln}`;
+                    // When article change save the current one and reset aux variable
+                    if (currentArticle !== '' && currentArticle !== articleNumber) {
+                        json.push({
+                            contenido: {
+                                [articleDate]: {
+                                    fecha: articleDate,
+                                    contenido: articleContent,
+                                    file: path
+                                }
+                            },
+                            numero: NUMBERS.test(currentArticle.substr(0, 1)) ? `${currentArticle.replace(',', '')}` : false,
+                            tipo: NUMBERS.test(currentArticle.substr(0, 1)) ? 'articulo' : 'na'
+                        })
+                        articleContent = '';
                     }
+
+                    currentArticle = articleNumber;
+                    articleContent += ` ${initialContent}`;
+                } else {
+                    if (currentArticle !== '')
+                        articleContent += ` ${ln}`;
                 }
+
             }
 
 
@@ -119,7 +117,7 @@ const parseJson = (txtFile, path) => {
              *          Save JSON to file
              *
              ************************/
-            const payload = { articulos: json, doc }
+            const payload = {articulos: json, doc}
 
             saveToPath('./json.json', JSON.stringify(payload), () => {
                 console.timeEnd('generate-json');
